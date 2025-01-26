@@ -19,6 +19,8 @@ public class EnemyController : MonoBehaviour
 
     public List<GameObject> nodes = new List<GameObject>();
 
+    public bool endlessMode = true;
+
     public Healthbar healthbar;
 
     Vector3 enemyStartPosition;
@@ -36,45 +38,57 @@ public class EnemyController : MonoBehaviour
     private void Start()
     {
         enemyStartPosition = transform.position;
-        currentEnemyState = EnemyState.Roaming;
-        NextNode();
+        
+        if (endlessMode)
+        {
+            currentEnemyState = EnemyState.Chasing;
+        }
+        else
+        {
+            currentEnemyState = EnemyState.Roaming;
+            NextNode();
+        }
     }
 
     private void FixedUpdate()
     {
-        switch (currentEnemyState)
+        if (playerTransform)
         {
-            default:
+            switch (currentEnemyState)
+            {
+                default:
 
-            case EnemyState.Roaming:
+                case EnemyState.Roaming:
 
-                if (Vector3.Distance(transform.position, currentTargetPosition) < 1f)
-                {
-                    NextNode();
-                }
-                else if (Vector3.Distance(transform.position,playerTransform.position) < enemyAgroRange)
-                {
-                    currentEnemyState = EnemyState.Chasing;
-                }
-                else
-                {
-                    MoveEnemy(currentTargetPosition);
-                }
+                    if (Vector3.Distance(transform.position, currentTargetPosition) < 1f)
+                    {
+                        NextNode();
+                    }
+                    else if (Vector3.Distance(transform.position, playerTransform.position) < enemyAgroRange)
+                    {
+                        currentEnemyState = EnemyState.Chasing;
+                    }
+                    else
+                    {
+                        MoveEnemy(currentTargetPosition);
+                    }
 
-                break;
+                    break;
 
-            case EnemyState.Chasing:
+                case EnemyState.Chasing:
 
-                if (Vector3.Distance(transform.position, playerTransform.position) > enemyDeAgroRange)
-                {
-                    currentEnemyState = EnemyState.Roaming;
-                }
+                    if (Vector3.Distance(transform.position, playerTransform.position) > enemyDeAgroRange && !endlessMode)
+                    {
+                        currentEnemyState = EnemyState.Roaming;
+                    }
 
-                MoveEnemy(playerTransform.position);
+                    MoveEnemy(playerTransform.position);
 
-                break;
+                    break;
 
+            }
         }
+       
     }
 
     void GetRandomPosition()
@@ -102,10 +116,12 @@ public class EnemyController : MonoBehaviour
         {
             GameManager.Instance.EnemyKilled(transform.gameObject);
 
-            transform.DOScale(Vector3.zero, 1f).SetEase(Ease.InOutQuad);
-            
-            //Destroy(healthbar.gameObject);
-            //Destroy(this.gameObject);
+            transform.DOScale(Vector3.zero, 0.25f).SetEase(Ease.InOutQuad);
+            transform.DORotate(new Vector3(0, 0, 540), 0.25f, RotateMode.FastBeyond360).SetEase(Ease.InCirc);
+
+
+            Destroy(healthbar.gameObject,0.25f);
+            Destroy(this.gameObject,0.25f);
         }
     }
 

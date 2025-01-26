@@ -20,7 +20,10 @@ public class Healthbar : MonoBehaviour
 
     private void Update()
     {
-        transform.rotation = Camera.main.transform.rotation;
-        transform.position = targetTransform.position;
+        if (targetTransform)
+        {
+            transform.rotation = Camera.main.transform.rotation;
+            transform.position = targetTransform.position;
+        }
     }
 }

@@ -18,7 +18,9 @@ public class PlayerController : MonoBehaviour
     public float playerHealth = 100f;
     public float playerMaxHealth = 100f;
     public float knockbackForceOnPlayer = 100f;
-    public float knockbackOnPlayerDuration = 1f;   
+    public float knockbackOnPlayerDuration = 1f;
+
+    public AudioSource sfx;
 
     private float moveX;
     private float moveY;
@@ -30,7 +32,7 @@ public class PlayerController : MonoBehaviour
     private bool damageDebounce = false;
     private bool canShoot = true;
 
-    private WaitForSeconds damageDebounceDelay = new WaitForSeconds(0.5f);
+    private WaitForSeconds damageDebounceDelay = new WaitForSeconds(0.25f);
     private WaitForSeconds bubbleShootDelay = new WaitForSeconds(0.3f);
 
     // Start is called before the first frame update
@@ -87,6 +89,7 @@ public class PlayerController : MonoBehaviour
 
     void ShootBubble()
     {
+        sfx.Play();
         canShoot = false;
         GameObject bubbleClone = Instantiate(bubble, bubbleSpawnPoint.position, bubbleSpawnPoint.rotation);
 
@@ -106,6 +109,7 @@ public class PlayerController : MonoBehaviour
         if (playerHealth <= 0)
         {
             gameObject.SetActive(false);
+            GameManager.Instance.LevelOver(false);
         }
     }
     
@@ -124,6 +128,17 @@ public class PlayerController : MonoBehaviour
                 StartCoroutine(damageDebounceResetter());
                 StartCoroutine(Knockback(collision.gameObject.transform));
             }
+        }else if (collision.gameObject.tag == "Ink")
+        {
+            if (!damageDebounce)
+            {
+                damageDebounce = true;
+
+                DamagePlayer(5);
+
+                StartCoroutine(damageDebounceResetter());
+                StartCoroutine(Knockback(collision.gameObject.transform));
+            }
         }
     }
 
@@ -134,19 +149,15 @@ public class PlayerController : MonoBehaviour
 
     IEnumerator Knockback(Transform enemyTransform)
     {
-        if (gameObject.activeSelf)
+        float timer = 0;
+
+        while (knockbackOnPlayerDuration > timer)
         {
-            float timer = 0;
-
-            while (knockbackOnPlayerDuration > timer)
-            {
-                timer += Time.deltaTime;
-                Vector2 direction = (transform.position - enemyTransform.position).normalized;
-                rb.AddForce(direction * knockbackForceOnPlayer);
-            }
-
-            yield return null;
+            timer += Time.deltaTime;
+            Vector2 direction = (transform.position - enemyTransform.position).normalized;
+            rb.AddForce(direction * knockbackForceOnPlayer);
         }
+
         yield return null;
     }
 

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MenuTile : MonoBehaviour
 {
@@ -11,6 +12,9 @@ public class MenuTile : MonoBehaviour
     public bool showCreditsPage = false;
     public bool showOptionsPage = false;
     public bool returnToMainMenu = false;
+    
+    public bool restartLevel = false;
+    public bool quitToMenu = false;
 
     public RectTransform thisRectTransform;
     Vector2 thisRectSize;
@@ -59,5 +63,14 @@ public class MenuTile : MonoBehaviour
             MenuHandler.Instance.UpdateCurrentPage("Options");
         else if (returnToMainMenu)
             MenuHandler.Instance.UpdateCurrentPage("Main");
+        else if (restartLevel)
+        {
+            Debug.Log("Restarrting");
+            var num = SceneManager.GetActiveScene().buildIndex;
+            SceneManager.LoadScene(num);
+        }
+            
+        else if (quitToMenu)
+            SceneManager.LoadScene(0);
     }
 }

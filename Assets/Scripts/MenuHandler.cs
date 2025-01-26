@@ -64,7 +64,7 @@ public class MenuHandler : MonoBehaviour
             //levelsPage.gameObject.SetActive(true);
             //currentSelectedPage = levelsPage;
 
-            SceneManager.LoadScene(0);
+            SceneManager.LoadScene(1);
         }
         else if (type == "Credits")
         {
